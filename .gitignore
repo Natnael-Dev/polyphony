@@ -1,0 +1,51 @@
+# Dark Factory & Hackathon Internal
+hackathon_docs/
+runs/
+checks/
+
+# Project Memory & Runbook (Local Only)
+PROGRESS.md
+SESSION_LOG.md
+DECISIONS.md
+BAND_RUNBOOK.md
+band_registered_agents.json
+secrets.json
+tom-jerry-agents/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Binaries & Build artifacts
+dist/
+build/
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+stage-*/main
+stage-*/*.exe
+
+# Node & Dependencies
+node_modules/
+
+# Environment & Secrets
+.env*
+!.env.example
+
+# IDE & Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
