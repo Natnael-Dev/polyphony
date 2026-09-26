@@ -1,8 +1,11 @@
 """QA Auditor seat adapter for Polyphony Dark Factory."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import os
+import pathlib
 import sys
 
 from dotenv import load_dotenv
@@ -16,16 +19,22 @@ configure_logging(
     style="json",
     root_level=logging.INFO,
     stream="stdout",
-    extra_loggers={"websockets": logging.WARNING, "httpx": logging.WARNING},
+    extra_loggers={
+        "websockets": logging.WARNING,
+        "httpx": logging.WARNING,
+    },
 )
 logger = logging.getLogger("polyphony-qa")
 
+WORKSPACE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+MANDATE_PATH = os.path.join(WORKSPACE_DIR, "mandates", "qa-auditor.md")
+CONFIG_PATH = os.path.join(WORKSPACE_DIR, "agent_config.yaml")
+
 async def main() -> None:
     load_dotenv()
-    mandate_path = os.path.join(os.path.dirname(__file__), "..", "mandates", "qa-auditor.md")
     custom_section = ""
-    if os.path.exists(mandate_path):
-        with open(mandate_path, "r", encoding="utf-8") as f:
+    if os.path.exists(MANDATE_PATH):
+        with open(MANDATE_PATH, "r", encoding="utf-8") as f:
             custom_section = f.read()
 
     adapter = CodexAdapter(
@@ -40,7 +49,11 @@ async def main() -> None:
     )
 
     logger.info("Starting polyphony-qa agent seat...")
-    async with Agent.from_config("polyphony-qa", adapter=adapter) as agent:
+    async with Agent.from_config(
+        "polyphony-qa",
+        adapter=adapter,
+        config_path=CONFIG_PATH,
+    ) as agent:
         await agent.run_forever()
 
 if __name__ == "__main__":

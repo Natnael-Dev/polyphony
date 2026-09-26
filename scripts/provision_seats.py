@@ -126,12 +126,22 @@ def main():
         }
         print(f"  Registered {name} -> Agent ID: {agent_id}")
         
-    # 3. Write to secrets.json
+    # 3. Write to secrets.json and agent_config.yaml
     workspace_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     secrets_path = os.path.join(workspace_dir, "secrets.json")
     with open(secrets_path, "w", encoding="utf-8") as f:
         json.dump(secrets, f, indent=2)
     print(f"\nSaved credentials to {secrets_path} (gitignored).")
+
+    agent_config_path = os.path.join(workspace_dir, "agent_config.yaml")
+    yaml_lines = ["# Auto-generated Polyphony BAND seat credentials (gitignored)\n"]
+    for s_name, creds in secrets.items():
+        yaml_lines.append(f"{s_name}:\n")
+        yaml_lines.append(f'  agent_id: "{creds["agent_id"]}"\n')
+        yaml_lines.append(f'  api_key: "{creds["api_key"]}"\n\n')
+    with open(agent_config_path, "w", encoding="utf-8") as f:
+        f.writelines(yaml_lines)
+    print(f"Saved agent config to {agent_config_path} (gitignored).")
     
     # 4. Verify registered agents
     print("\nVerifying registered agents on platform...")
