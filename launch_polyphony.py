@@ -151,8 +151,24 @@ def extract_prompt_text(filepath: str) -> str:
     return content.strip()
 
 
+def cleanup_existing_rooms(title: str, user_api_key: str) -> None:
+    """Find and delete any old rooms with the same title to ensure clean state."""
+    url = f"{BAND_BASE_URL}/api/v1/me/chats"
+    try:
+        res = make_api_request(url, method="GET", api_key=user_api_key)
+        for chat in res.get("data", []):
+            if chat.get("title") == title:
+                chat_id = chat.get("id")
+                del_url = f"{BAND_BASE_URL}/api/v1/me/chats/{chat_id}"
+                make_api_request(del_url, method="DELETE", api_key=user_api_key)
+                print(f"  [-] Pruned previous room '{title}' ({chat_id})")
+    except Exception as e:
+        print(f"  [!] Note: Room cleanup skipped ({e})")
+
+
 def create_room(title: str, user_api_key: str) -> str:
-    """Create a new room in BAND platform."""
+    """Create a new room in BAND platform, pruning any stale duplicates first."""
+    cleanup_existing_rooms(title, user_api_key)
     url = f"{BAND_BASE_URL}/api/v1/me/chats"
     payload = {"chat": {"title": title}}
     res = make_api_request(url, method="POST", data=payload, api_key=user_api_key)

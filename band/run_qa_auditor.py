@@ -40,6 +40,8 @@ async def main() -> None:
     adapter = CodexAdapter(
         config=CodexAdapterConfig(
             transport="stdio",
+            workspace_for_room=lambda _: WORKSPACE_DIR,
+            sandbox="danger-full-access",
             personality="none",
             custom_section=custom_section,
             include_base_instructions=True,
