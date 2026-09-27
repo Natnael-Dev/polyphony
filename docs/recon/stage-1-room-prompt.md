@@ -68,8 +68,9 @@ You (@polyphony-architect) must run `git log -n 1 --oneline` to verify each comm
 
 #### Brief 4 (B4): Bill Splits & Batch Operator Settlements
 - Scope:
-  - POST /splits: divide amount across unique handles (base share + remainder distributed to first handles in input order; create pending requests for non-creator participants).
-  - POST /settlements: operator-only batch transfer execution (1..32 transfers, atomic all-or-none net affordability check across all affected wallets, zero 500 errors).
+  - POST /splits: divide amount across unique handles (base share `amount // n` + remainder `amount % n` distributed to first handles in input order; create pending requests for non-creator participants; caller balance not checked; idempotent).
+  - POST /settlements: operator-only batch transfer execution (1..32 transfers, atomic all-or-none net affordability check across all affected wallets, zero 500 errors; caller in `settlement_operator_ids`; idempotent).
+  - Batch/operator settlement extensions beyond this contract are OUT OF SCOPE for Stage 1 and deferred to Stage 4.
 - Developer Action: Implement, compile, verify settlement atomicity, commit as `feat(stage-1): implement splits and batch operator settlements`, tag @polyphony-architect with DONE + commit SHA.
 
 #### Brief 5 (B5): Social Activity Feed & Unicode/Privacy Rules
