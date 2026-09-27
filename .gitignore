@@ -5,7 +5,6 @@ checks/
 
 # Project Memory & Runbook (Local Only)
 PROGRESS.md
-SESSION_LOG.md
 DECISIONS.md
 BAND_RUNBOOK.md
 band_registered_agents.json

@@ -1,7 +1,7 @@
 # Project State: WeAreDevelopers x BAND (Dark Factory)
 
 ## Current Status
-- **Phase**: Phase 1.2 Complete — Ready to Launch Stage 1 (Chunked Orchestration Architecture).
+- **Phase**: Phase 1.2.1 Complete — Ready to Launch Stage 1 (Chunked Orchestration Architecture & B4 Bound).
 - **Timestamp**: 2026-09-27.
 - **Git State**: Clean, tracking main branch on https://github.com/Natnael-Dev/polyphony.
 - **Seats & Orchestration**:
@@ -10,6 +10,10 @@
   - Master launcher `launch_polyphony.py` armed with chunked room prompt (`docs/recon/stage-1-room-prompt.md`).
   - Preflight validated via `scripts/safety_preflight.ps1`.
   - Evidence compiled in `evidence/phase-1.2.md`.
+- **Screen Recordings Inventory**:
+  - Run 1 (Sandbox Fault, 30.7 MB): `C:\Users\HP\OneDrive\Desktop\Recordings\run1-sandbox-fault.mp4`
+  - Run 2 (Monolithic Timeout, 486.6 MB): `C:\Users\HP\OneDrive\Desktop\Recordings\run2-monolithic-timeout.mp4`
+  - Kept outside git tracking per repository hygiene.
 
 ## Key Milestone Deadlines
 - **Kickoff**: Sat, Sep 26, 2026, 09:00 PDT / 16:00 UTC / 18:00 CEST.
