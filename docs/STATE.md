@@ -31,3 +31,6 @@
 3. Human starts screen recording on BAND Desktop window and presses ENTER.
 4. Band executes B1–B6 autonomously, passing through dual QA gates to produce QA Audit Certificate.
 5. Export room session via `harness export-room` and run verification suite.
+
+
+

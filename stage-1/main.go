@@ -58,7 +58,7 @@ func main() {
 		Handler: mux,
 	}
 
-	log.Printf("Starting Pocketful service on port %s...", port)
+	log.Printf("Stage 1 HTTP server listening on port %s", port)
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("server error: %v", err)
 	}

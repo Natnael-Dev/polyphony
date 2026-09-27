@@ -10,6 +10,7 @@ DECISIONS.md
 BAND_RUNBOOK.md
 band_registered_agents.json
 secrets.json
+agent_config.yaml
 tom-jerry-agents/
 
 # Databases

@@ -86,11 +86,11 @@ To guarantee that balances never drop below zero under high concurrency (e.g. 10
 
 #### Layer 1: SQLite Table Constraint
 ```sql
-CREATE TABLE accounts (\
-    user_id TEXT PRIMARY KEY,\
-    balance INTEGER NOT NULL CHECK (balance >= 0),\
-    updated_at TEXT NOT NULL,\
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\
+CREATE TABLE accounts (
+    user_id TEXT PRIMARY KEY,
+    balance INTEGER NOT NULL CHECK (balance >= 0),
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 ```
 Any transaction that attempts to set `balance < 0` triggers an immediate constraint violation and rolls back cleanly.
