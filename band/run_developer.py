@@ -47,6 +47,7 @@ async def main() -> None:
             include_base_instructions=True,
             fallback_send_agent_text=True,
             approval_mode="auto_accept",
+            turn_timeout_s=900,
         ),
         emit={Emit.TASK_EVENTS, Emit.THOUGHTS},
     )
