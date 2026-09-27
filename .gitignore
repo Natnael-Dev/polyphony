@@ -32,6 +32,11 @@ bin/
 stage-*/main
 stage-*/*.exe
 
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
 # Node & Dependencies
 node_modules/
 
