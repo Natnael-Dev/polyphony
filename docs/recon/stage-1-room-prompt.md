@@ -58,7 +58,7 @@ You must incorporate and pass down the full requirements from our Phase 0.5 disc
 ### OPERATIONAL SEQUENCE
 1. Room Preparation: Verify that @developer and @qa-auditor are participants in this room.
 2. Briefing & Delegation: Post a comprehensive, self-contained implementation brief to @developer containing all endpoint contracts, schema DDL, error codes, and Docker zero-egress constraints. Never instruct seats to "read the room" or use pointers.
-3. Implementation: @developer creates all required Go packages in `./stage-1/`, verifies static Docker build, runs internal tests, commits changes cleanly, and posts the Git revision hash tagging @qa-auditor and @architect.
+3. Implementation: @developer replaces the temporary health skeleton in `./stage-1/` with the full production Go service, verifies static Docker build, runs internal tests, commits changes cleanly, and posts the Git revision hash tagging @qa-auditor and @architect.
 4. Independent Audit: @qa-auditor pulls the revision, builds the container, executes `docker run --network none`, executes the automated test suite, tests 10 concurrent payments on a single wallet (confirming 1 succeeds with 201, 9 fail with 409 insufficient_funds, zero 500 errors), and checks state conservation.
 5. Defect Remediation: If @qa-auditor finds any test failure or schema discrepancy, @qa-auditor posts the failure log and reproduction command back to @developer. @developer must diagnose, commit a fix, and request re-audit.
 6. Stage Certification: When @qa-auditor issues a clean Audit Certificate confirming 100% compliance, post the final Stage 1 outcome summary to the room.
