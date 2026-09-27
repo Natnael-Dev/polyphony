@@ -1,9 +1,9 @@
-# BAND Room Master Orchestration Prompt: Stage 1
+# BAND Room Master Orchestration Prompt: Stage 1 (Chunked Orchestration)
 
 ## Prompt Overview
 This document contains the exact master task prompt to be pasted into the **BAND Desktop** room to initiate autonomous execution of **Stage 1 (Pocketful Track)**. 
 
-In strict adherence to the Dark Factory Hackathon rules, this prompt is the **sole human interaction** with the band. It directs `@architect` to coordinate the seat topology without writing application code directly, enlists `@developer` for Go implementation and containerization, and commands `@qa-auditor` to conduct independent adversarial verification.
+In strict adherence to the Dark Factory Hackathon rules, this prompt is the **sole human interaction** with the band. It directs `@polyphony-architect` to coordinate the seat topology using a **sequential chunked orchestration model (B1–B6)** with an interim ledger Q-gate and final certification gate.
 
 ---
 
@@ -12,7 +12,7 @@ In strict adherence to the Dark Factory Hackathon rules, this prompt is the **so
 *(Copy and paste the text block below directly into the BAND Desktop room session)*
 
 ```text
-@architect You are the System Architect and Coordinator for our autonomous software engineering band.
+@polyphony-architect You are the System Architect and Coordinator for our autonomous software engineering band.
 
 ### CHALLENGE & STAGE
 - Track: Pocketful (Venmo-style wallet and double-entry ledger)
@@ -22,56 +22,95 @@ In strict adherence to the Dark Factory Hackathon rules, this prompt is the **so
 
 ### CORE SEAT MANDATES & FACTORY TOPOLOGY
 You must orchestrate the team and enforce strict separation of duties. Under no circumstances should you implement production code directly:
-1. @architect (You): Ingest specifications, prepare self-contained interface and transaction briefs, ensure @developer and @qa-auditor are present in this room, delegate tasks, supervise verification loops, and publish the final stage completion report.
-2. @developer: Implement the production Go service, compile static zero-egress binaries, implement the database transaction logic, build Docker containers, run local tests, and report atomic Git commits.
-3. @qa-auditor: Independently inspect the committed revision, verify container startup and execution under `--network none`, run the Stage 1 test harness, execute concurrency burst tests, verify monetary conservation, and report either structured defect rejections or an audit certificate.
+1. @polyphony-architect (You): Ingest specifications, prepare self-contained interface and transaction briefs, ensure @polyphony-developer and @polyphony-qa are present in this room, delegate tasks sequentially, supervise verification loops, verify checkpoint commits in git log, and publish the final stage completion report.
+2. @polyphony-developer: Implement the production Go service in ./stage-1/, compile static zero-egress binaries, implement the database transaction logic, build Docker containers, run local tests, and report atomic Git commits for each chunk.
+3. @polyphony-qa: Independently inspect committed revisions, verify container startup and execution under `--network none`, run the Stage 1 test harness, execute concurrency burst tests, verify monetary conservation, and report either structured defect rejections or an audit certificate.
 
-### INPUT SPECIFICATIONS & RECON BLUEPRINTS
-You must incorporate and pass down the full requirements from our Phase 0.5 discovery blueprints:
-1. API Contract Specification:
-   Read and enforce: docs/recon/api-contract.md
-   Every endpoint must match the exact REST paths, request/response JSON bodies, RFC 3339 timestamps, and standardized error envelopes:
-   {"error": {"code": "<error_code>", "message": "<human readable>"}}
-   Key endpoints:
-   - GET /health (200 {"status": "ok"})
-   - POST /_test/reset (204 No Content, resets fixture, validates non-negative balances)
-   - GET /_test/export & POST /_test/import (atomically exports and restores state)
-   - POST /auth/signup & POST /auth/login (derives handles, hashes passwords)
-   - GET /me (returns authenticated wallet balance)
-   - POST /payments (idempotent, atomic debit/credit, verbatim notes, public/private visibility)
-   - POST /requests, POST /requests/{id}/pay, /decline, /cancel, GET /requests (filter by direction/status)
-   - POST /splits (equal split algorithm with remainder to first participants)
-   - GET /activity (feed visibility contract)
-   - POST /settlements (operator-only atomic multi-transfer batch, 1..32 transfers, net affordability)
+### CRITICAL ORCHESTRATION PROTOCOL: SEQUENTIAL CHUNKED BRIEFS
+DO NOT post a single monolithic brief for the entire stage. Monolithic turns exceed agent tool-time limits and cause timeouts.
+You MUST decompose Stage 1 into the following 6 sequential implementation briefs (B1–B6) and 2 QA validation gates.
+Every developer turn MUST finish within ~5 minutes, make an atomic git checkpoint commit, and conclude by tagging @polyphony-architect with "DONE: commit <SHA>" or "PARTIAL: remaining <list>".
+You (@polyphony-architect) must run `git log -n 1 --oneline` to verify each commit SHA before dispatching the subsequent brief.
 
-2. SQLite Ledger Schema & Concurrency Configuration:
-   Read and enforce: docs/recon/ledger-schema.md
-   - Pure-Go driver: modernc.org/sqlite (CGO_ENABLED=0).
-   - PRAGMAs: journal_mode=WAL, busy_timeout=5000, synchronous=NORMAL, foreign_keys=ON, cache_size=-64000, temp_store=MEMORY.
-   - Concurrency serialization: Use `BEGIN IMMEDIATE` or an application-level write mutex to guarantee single-writer serialization without SQLITE_BUSY deadlocks.
-   - Invariants:
-     a) CHECK (balance >= 0) on accounts table.
-     b) Atomic UPDATE: `UPDATE accounts SET balance = balance - :amount WHERE user_id = :id AND balance >= :amount`.
-     c) Double-entry transactions: Every payment and transfer creates balanced postings where sum(amount) == 0.
-     d) Total system wallet balance always equals seeded fixture total.
+---
 
-### OPERATIONAL SEQUENCE
-1. Room Preparation: Verify that @developer and @qa-auditor are participants in this room.
-2. Briefing & Delegation: Post a comprehensive, self-contained implementation brief to @developer containing all endpoint contracts, schema DDL, error codes, and Docker zero-egress constraints. Never instruct seats to "read the room" or use pointers.
-3. Implementation: @developer replaces the temporary health skeleton in `./stage-1/` with the full production Go service, verifies static Docker build, runs internal tests, commits changes cleanly, and posts the Git revision hash tagging @qa-auditor and @architect.
-4. Independent Audit: @qa-auditor pulls the revision, builds the container, executes `docker run --network none`, executes the automated test suite, tests 10 concurrent payments on a single wallet (confirming 1 succeeds with 201, 9 fail with 409 insufficient_funds, zero 500 errors), and checks state conservation.
-5. Defect Remediation: If @qa-auditor finds any test failure or schema discrepancy, @qa-auditor posts the failure log and reproduction command back to @developer. @developer must diagnose, commit a fix, and request re-audit.
-6. Stage Certification: When @qa-auditor issues a clean Audit Certificate confirming 100% compliance, post the final Stage 1 outcome summary to the room.
+### BRIEF SPECIFICATIONS:
 
-Begin now by preparing the implementation assignment for @developer.
+#### Brief 1 (B1): Schema DDL, Auth & User Accounts
+- Scope:
+  - SQLite schema DDL creation in `./stage-1/` using pure-Go `modernc.org/sqlite` (WAL mode, busy_timeout=5000, synchronous=NORMAL, foreign_keys=ON).
+  - Tables: system_config, users, sessions, accounts (balance >= 0 check), settlement_operators, transactions, postings, payments, requests, splits, split_shares, settlements, idempotency_keys.
+  - Endpoints: GET /health (200), POST /auth/signup (password hashing, unique email/handle), POST /auth/login (session token creation), GET /me (returns authenticated user and balance).
+- Developer Action: Implement in ./stage-1/, compile (`go build ./...`), commit as `feat(stage-1): implement schema ddl, auth, and user endpoints`, tag @polyphony-architect with DONE + commit SHA.
+
+#### Brief 2 (B2): Core Payments, Idempotency & Double-Entry Invariants
+- Scope:
+  - POST /payments endpoint with idempotency key handling (scoped to user, method, path, key).
+  - Serialization: Use BEGIN IMMEDIATE or application write mutex.
+  - Atomic debit/credit guard: `UPDATE accounts SET balance = balance - :amount WHERE user_id = :id AND balance >= :amount` (return 409 insufficient_funds if zero rows affected).
+  - Double-entry postings: Insert balanced postings with sum(amount) == 0.
+  - Verbatim payment notes, public and private visibility handling.
+- Developer Action: Implement, compile, verify balance invariants, commit as `feat(stage-1): implement core payments, idempotency, and double-entry postings`, tag @polyphony-architect with DONE + commit SHA.
+
+#### INTERIM QUALITY GATE (Q-Gate after B2):
+- Scope: @polyphony-architect tags @polyphony-qa to audit the core ledger invariants committed in B1+B2 before advancing to B3.
+- QA Action: @polyphony-qa inspects the committed revision, runs unit/concurrency tests on payments, verifies that balances cannot go negative, confirms sum(postings) == 0, and tags @polyphony-architect with "INTERIM AUDIT PASS: ledger invariants verified" (or structured defect rejection).
+
+#### Brief 3 (B3): Peer-to-Peer Requests API
+- Scope:
+  - Endpoints:
+    - POST /requests: create pending payment request for a known handle.
+    - POST /requests/{id}/pay: payer fulfills request (idempotent, triggers payment move and updates status to paid).
+    - POST /requests/{id}/decline: payer declines pending request.
+    - POST /requests/{id}/cancel: requester cancels pending request.
+    - GET /requests: list caller's involved requests with status (pending, paid, declined, cancelled) and direction (incoming, outgoing) filters and pagination.
+- Developer Action: Implement, compile, test request lifecycles, commit as `feat(stage-1): implement payment requests lifecycle and listing`, tag @polyphony-architect with DONE + commit SHA.
+
+#### Brief 4 (B4): Bill Splits & Batch Operator Settlements
+- Scope:
+  - POST /splits: divide amount across unique handles (base share + remainder distributed to first handles in input order; create pending requests for non-creator participants).
+  - POST /settlements: operator-only batch transfer execution (1..32 transfers, atomic all-or-none net affordability check across all affected wallets, zero 500 errors).
+- Developer Action: Implement, compile, verify settlement atomicity, commit as `feat(stage-1): implement splits and batch operator settlements`, tag @polyphony-architect with DONE + commit SHA.
+
+#### Brief 5 (B5): Social Activity Feed & Unicode/Privacy Rules
+- Scope:
+  - GET /activity: global and social feed displaying public payments or payments where caller is sender/receiver. Never expose requests in feed. Pagination (limit, offset) and reverse chronological ordering.
+  - Strict input validation: RFC 3339 timestamps, Unicode notes handling, error envelopes `{"error": {"code": "...", "message": "..."}}`.
+- Developer Action: Implement, compile, verify feed privacy filters, commit as `feat(stage-1): implement activity feed and input validation`, tag @polyphony-architect with DONE + commit SHA.
+
+#### Brief 6 (B6): Test Fixtures, State Export/Import & Offline Docker Container
+- Scope:
+  - POST /_test/reset: resets database to initial fixture and validates non-negative balances.
+  - GET /_test/export & POST /_test/import: atomic full-state serialization and restore.
+  - Docker packaging: verify static binary build in multi-stage Dockerfile (`CGO_ENABLED=0`), run container under `docker run --network none`, verify offline boot.
+- Developer Action: Implement test endpoints, build Docker image `factory-stage1:latest`, test container execution, commit as `feat(stage-1): implement test endpoints and offline docker build`, tag @polyphony-architect and @polyphony-qa with DONE + commit SHA and exact verification instructions.
+
+---
+
+### FINAL QUALITY GATE (Q-Final after B6):
+- Scope: Full independent verification by @polyphony-qa.
+- QA Action:
+  1. Pull final committed revision and build container `docker build -t factory-stage1:latest stage-1/`.
+  2. Boot container under `docker run --network none -d -p 8080:8080 factory-stage1:latest`.
+  3. Execute automated test suite / harness check (`python -m harness check . --track pocketful`).
+  4. Run 10 concurrent payments against a single wallet to verify concurrency serialization (exactly 1 succeeds with 201, 9 fail with 409 insufficient_funds, zero 500 errors).
+  5. Check total monetary conservation (sum(balances) == fixture total).
+  6. Post raw command outputs and either issue the formal "AUDIT CERTIFICATE: PASS" or defect rejection logs.
+
+### STAGE COMPLETION:
+When @polyphony-qa issues the Audit Certificate, @polyphony-architect posts the comprehensive Stage 1 Completion Report to the room, detailing:
+- Final commit SHA
+- Test suite outcomes and raw pass counts
+- Concurrency and conservation verification evidence
+- Docker zero-egress compliance confirmation
+
+Begin now, @polyphony-architect, by verifying participant presence and posting Brief 1 (B1) to @polyphony-developer.
 ```
 
 ---
 
-## 2. Key Guardrails & Anti-Pattern Defenses
-
-This prompt explicitly guards against common dark-factory failure modes:
-1. **Architect Overreach Prevention**: Mandates that `@architect` coordinates rather than writing Go files directly.
-2. **Generic Mandate Compliance**: The task prompt holds all track-specific vocabulary (`/payments`, `/settlements`, `insufficient_funds`), ensuring `mandates/*.md` remain 100% generic.
-3. **No-Steering Rule**: Pre-defines the self-healing rejection protocol between `@qa-auditor` and `@developer` so that failures are resolved without prompting the human.
-4. **Isolated Zero-Egress Enforcement**: Explicitly orders verification under `docker run --network none` to prevent disqualified runtime network fetches.
+## Key Guardrails & Anti-Pattern Defenses
+1. **Chunk Sizing (< 5 min/brief)**: Eliminates the monolithic 900s turn timeout failure mode by constraining each brief to 1-2 modules.
+2. **Explicit Mention Handshake**: Guarantees that the architect wakes up after every developer chunk by mandating `@polyphony-architect` in developer completion tags.
+3. **Interim Ledger Gate**: Validates core monetary invariants (zero-sum, no overdrafts) early before higher-level features (requests, splits, settlements) are layered on top.
+4. **Git Checkpoint Traceability**: Every chunk produces an auditable git commit verified by the architect before subsequent work begins.
