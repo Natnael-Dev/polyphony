@@ -16,7 +16,7 @@ from band.core.types import Emit
 
 configure_logging(
     level=logging.INFO,
-    style="json",
+    style="standard",
     root_level=logging.INFO,
     stream="stdout",
     extra_loggers={
@@ -44,6 +44,7 @@ async def main() -> None:
             custom_section=custom_section,
             include_base_instructions=True,
             fallback_send_agent_text=True,
+            approval_mode="auto_accept",
         ),
         emit={Emit.TASK_EVENTS, Emit.THOUGHTS},
     )
