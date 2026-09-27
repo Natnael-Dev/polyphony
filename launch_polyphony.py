@@ -227,7 +227,7 @@ def main():
             [py_exe, script_path],
             cwd=WORKSPACE_DIR,
             stdout=log_fp,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.STLOG if hasattr(subprocess, "STLOG") else subprocess.STDOUT,
             env=os.environ.copy(),
         )
         processes.append((p, seat_name))
@@ -237,9 +237,14 @@ def main():
         time.sleep(2)
 
         # Check if any seat failed on startup
-        for p, name in processes:
+        for (p, name), (_, _, log_file) in zip(processes, ADAPTERS):
             if p.poll() is not None:
-                raise RuntimeError(f"Seat @{name} exited immediately with code {p.returncode}. Check runs/logs/{name}.log.")
+                log_path = os.path.join(RUNS_LOGS_DIR, log_file)
+                err_snippet = ""
+                if os.path.exists(log_path):
+                    with open(log_path, "r", encoding="utf-8", errors="replace") as f:
+                        err_snippet = "".join(f.readlines()[-15:])
+                raise RuntimeError(f"Seat @{name} exited immediately with code {p.returncode}.\nLog snippet ({log_path}):\n{err_snippet}")
 
         # 2. Create room
         room_title = "stage-1-pocketful"
